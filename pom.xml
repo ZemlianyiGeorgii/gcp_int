@@ -12,6 +12,7 @@
         <java.version>11</java.version>
         <spring-boot.version>2.3.3.RELEASE</spring-boot.version>
         <spring-cloud.version>1.2.5.RELEASE</spring-cloud.version>
+        <avro.version>1.10.0</avro.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
@@ -49,9 +50,16 @@
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-gcp-starter-pubsub</artifactId>
         </dependency>
+<!--        <dependency>
+            <groupId>com.google.cloud</groupId>
+            <artifactId>google-cloud-bigquery</artifactId>
+        </dependency>-->
+
+        <!-- Test -->
         <dependency>
-            <groupId>org.springframework.integration</groupId>
-            <artifactId>spring-integration-core</artifactId>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
@@ -69,6 +77,25 @@
                     </execution>
                 </executions>
             </plugin>
+
+<!--            &lt;!&ndash; Avro compile &ndash;&gt;
+            <plugin>
+                <groupId>org.apache.avro</groupId>
+                <artifactId>avro-maven-plugin</artifactId>
+                <version>1.9.2</version>
+                <executions>
+                    <execution>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>schema</goal>
+                        </goals>
+                        <configuration>
+                            <sourceDirectory>${project.basedir}/src/main/resources/avro/</sourceDirectory>
+                            <outputDirectory>${project.basedir}/src/main/java/</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>-->
 
             <!-- Maven plugins-->
             <plugin>

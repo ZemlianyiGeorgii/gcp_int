@@ -1,0 +1,6 @@
+{
+  "kind": "storage#object",
+  "id": "avro_input_1/table_name.csv/1599982346573996",
+  "name": "file_name",
+  "bucket": "bucket"
+}
