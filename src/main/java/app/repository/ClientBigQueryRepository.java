@@ -1,5 +1,6 @@
 package app.repository;
 
+import app.entity.Client;
 import app.exception.AppException;
 import com.google.cloud.bigquery.*;
 import org.slf4j.Logger;
@@ -8,6 +9,8 @@ import org.slf4j.LoggerFactory;
 public class ClientBigQueryRepository {
 
     private final Logger log = LoggerFactory.getLogger(ClientBigQueryRepository.class);
+    private static final String ID = "id";
+    private static final String NAME = "name";
 
     private BigQuery bigquery;
     private String datasetName;
@@ -22,8 +25,7 @@ public class ClientBigQueryRepository {
     }
 
     //TODO: Clean code from comments
-    public void loadAvroFromGcpStorage(String sourceUri) throws AppException {
-        log.info("Yhis is loadAvroFromGcpStorage + {}", tableNameFull);
+    public void saveAvroFromGcpStorage(String sourceUri) throws AppException {
         try {
             TableId tableId = TableId.of(datasetName, tableNameFull);
             LoadJobConfiguration loadConfig =
@@ -36,7 +38,7 @@ public class ClientBigQueryRepository {
 
             job = job.waitFor();
             if (job.isDone()) {
-                log.info("Table is successfully appended by AVRO file loaded from GCS");
+                log.info("Table {} is successfully appended by AVRO file loaded from GCS", tableNameFull);
             } else {
                 log.error("Error: BigQuery was unable to load into the table due to an error: {}", job.getStatus().getError().getMessage());
             }
@@ -46,28 +48,28 @@ public class ClientBigQueryRepository {
         }
     }
 
+    public void saveClientObligateFields(Client client) throws AppException {
+            try {
+                String tableName = "`" + datasetName + "." + tableNamePartial + "`";
+                String query = "INSERT " + tableName + " (`id`, `name`) VALUES (@id, @name)";
 
-    public void loadAvroFromGcpStoragePart(String sourceUri) throws AppException {
-        log.info("Yhis is loadAvroFromGcpStoragePart + {}", tableNamePartial);
-        try {
-            TableId tableId = TableId.of(datasetName, tableNamePartial);
-            LoadJobConfiguration loadConfig =
-                    LoadJobConfiguration.newBuilder(tableId, sourceUri)
-                            .setFormatOptions(FormatOptions.avro())
-                            .setWriteDisposition(JobInfo.WriteDisposition.WRITE_APPEND)
-                            .build();
+                // Note: Standard SQL is required to use query parameters.
+                QueryJobConfiguration queryConfig =
+                        QueryJobConfiguration.newBuilder(query)
+                                .addNamedParameter(ID, QueryParameterValue.int64(client.getId()))
+                                .addNamedParameter(NAME, QueryParameterValue.string(client.getName().toString()))
+                                .build();
+                Job job = bigquery.create(JobInfo.of(queryConfig));
 
-            Job job = bigquery.create(JobInfo.of(loadConfig));
-
-            job = job.waitFor();
-            if (job.isDone()) {
-                log.info("Table is successfully appended by AVRO file loaded from GCS");
-            } else {
-                log.error("Error: BigQuery was unable to load into the table due to an error: {}", job.getStatus().getError().getMessage());
+                job = job.waitFor();
+                if (job.isDone()) {
+                    log.info("Table {} is successfully appended by AVRO file loaded from GCS", tableNamePartial);
+                } else {
+                    log.error("Error: BigQuery was unable to load into the table due to an error: {}", job.getStatus().getError().getMessage());
+                }
+            } catch (BigQueryException | InterruptedException e) {
+                log.error("Row not added during load append ", e);
+                throw new AppException("Error: BigQuery was unable to load into the table", e);
             }
-        } catch (BigQueryException | InterruptedException e) {
-            log.error("Row not added during load append ", e);
-            throw new AppException("Error: BigQuery was unable to load into the table", e);
-        }
     }
 }

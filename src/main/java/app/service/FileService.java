@@ -18,6 +18,7 @@ public class FileService {
     private final Logger log = LoggerFactory.getLogger(FileService.class);
 
     private ClientGcpStorageRepository clientGcpStorageRepository;
+
     private ClientBigQueryRepository clientBigQueryRepository;
 
     public FileService(ClientGcpStorageRepository clientGcpStorageRepository, ClientBigQueryRepository clientBigQueryRepository) {
@@ -25,26 +26,25 @@ public class FileService {
         this.clientBigQueryRepository = clientBigQueryRepository;
     }
 
-    //TODO: CLean code
-    public void saveAvroToBigQuery(GcpStorageFileLocation fileLocation) throws AppException, IOException {
-        //TODO: remove logger + remove getAbsolute
-        log.info("Inserting BigQuery from {}", fileLocation.getAbsolutePath());
-        DataFileStream<Client> dataFileStream = clientGcpStorageRepository.readFromAvroAsStream(fileLocation.getBucket(), fileLocation.getName());
-
-        while (dataFileStream.hasNext()) {
-            Client client = dataFileStream.next();
-            log.info("==============================================");
-            log.info("Id: " + client.getId());
-            log.info("Name: " + client.getName());
-            log.info("Address: " + client.getAddress());
-            log.info("Phone: " + client.getPhone());
+    public void saveAvroToBigQuery(GcpStorageFileLocation fileLocation, boolean saveAllFields) throws AppException, IOException {
+        if (saveAllFields) {
+            clientBigQueryRepository.saveAvroFromGcpStorage(fileLocation.getAbsolutePath());
+        } else {
+            savePartFields(fileLocation);
         }
-        clientBigQueryRepository.loadAvroFromGcpStorage(fileLocation.getAbsolutePath());
-        clientBigQueryRepository.loadAvroFromGcpStoragePart(fileLocation.getAbsolutePath());
+    }
+
+    public void savePartFields(GcpStorageFileLocation fileLocation) throws IOException, AppException {
+        DataFileStream<Client> dataFileStream = clientGcpStorageRepository.readFromAvroAsStream(fileLocation.getBucket(), fileLocation.getName());
+        while(dataFileStream.hasNext()) {
+           Client client = dataFileStream.next();
+            clientBigQueryRepository.saveClientObligateFields(client);
+        }
         try {
             dataFileStream.close();
         } catch (IOException e) {
-            log.error("Error: Can't close input stream of AVRO file");
+            log.error("Error: Can't close Avro data file stream correctly", e);
         }
     }
+
 }

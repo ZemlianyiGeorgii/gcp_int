@@ -26,8 +26,17 @@ public class PubSubController {
         this.fileService = fileService;
     }
 
-    @PostMapping(value = "/")
-    public ResponseEntity receiveMessage(@RequestBody Body body) {
+    @PostMapping(value = "/allfields")
+    public ResponseEntity saveAllFields(@RequestBody Body body) {
+        return handleMessage(body, true);
+    }
+
+    @PostMapping(value = "/partfields")
+    public ResponseEntity saveObligatoryFields(@RequestBody Body body) {
+        return handleMessage(body, false);
+    }
+
+    public ResponseEntity handleMessage(Body body, boolean saveAllFields) {
         Body.Message message = body.getMessage();
         if (message == null) {
             String msg = "Bad Request: invalid Pub/Sub message format";
@@ -52,7 +61,7 @@ public class PubSubController {
         }
 
         try {
-            fileService.saveAvroToBigQuery(fileLocationOptional.get());
+            fileService.saveAvroToBigQuery(fileLocationOptional.get(), saveAllFields);
         } catch (Exception e) {
             String msg = String.format("Error: Handling file: %s", e.getMessage());
             log.error(msg);

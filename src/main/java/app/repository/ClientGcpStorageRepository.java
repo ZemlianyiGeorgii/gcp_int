@@ -27,9 +27,9 @@ public class ClientGcpStorageRepository {
         DataFileStream<Client> dataFileStream = new DataFileStream<>(inputStream, clientDatumReader);
         Schema realSchema = dataFileStream.getSchema();
 
-       /* if (!Client.getClassSchema().equals(realSchema)) {
+        if (!Client.getClassSchema().equals(realSchema)) {
           throw new AppException("Error: Inappropriate AVRO schema " + realSchema.toString());
-        }*/
+        }
 
         return dataFileStream;
     }
