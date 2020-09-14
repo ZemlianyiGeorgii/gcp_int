@@ -33,5 +33,4 @@ public class ClientGcpStorageRepository {
 
         return dataFileStream;
     }
-
 }

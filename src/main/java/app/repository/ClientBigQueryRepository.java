@@ -40,7 +40,9 @@ public class ClientBigQueryRepository {
             if (job.isDone()) {
                 log.info("Table {} is successfully appended by AVRO file loaded from GCS", tableNameFull);
             } else {
-                log.error("Error: BigQuery was unable to load into the table due to an error: {}", job.getStatus().getError().getMessage());
+                String msg = "Error: BigQuery was unable to load into the table due to an error: " + job.getStatus().getError().getMessage();
+                log.error(msg);
+                throw new AppException(msg);
             }
         } catch (BigQueryException | InterruptedException e) {
             log.error("Row not added during load append ", e);
@@ -49,27 +51,26 @@ public class ClientBigQueryRepository {
     }
 
     public void saveClientObligateFields(Client client) throws AppException {
-            try {
-                String tableName = "`" + datasetName + "." + tableNamePartial + "`";
-                String query = "INSERT " + tableName + " (`id`, `name`) VALUES (@id, @name)";
+        try {
+            String tableName = "`" + datasetName + "." + tableNamePartial + "`";
+            String query = "INSERT " + tableName + " (`id`, `name`) VALUES (@id, @name)";
 
-                // Note: Standard SQL is required to use query parameters.
-                QueryJobConfiguration queryConfig =
-                        QueryJobConfiguration.newBuilder(query)
-                                .addNamedParameter(ID, QueryParameterValue.int64(client.getId()))
-                                .addNamedParameter(NAME, QueryParameterValue.string(client.getName().toString()))
-                                .build();
-                Job job = bigquery.create(JobInfo.of(queryConfig));
+            QueryJobConfiguration queryConfig =
+                    QueryJobConfiguration.newBuilder(query)
+                            .addNamedParameter(ID, QueryParameterValue.int64(client.getId()))
+                            .addNamedParameter(NAME, QueryParameterValue.string(client.getName().toString()))
+                            .build();
+            Job job = bigquery.create(JobInfo.of(queryConfig));
 
-                job = job.waitFor();
-                if (job.isDone()) {
-                    log.info("Table {} is successfully appended by AVRO file loaded from GCS", tableNamePartial);
-                } else {
-                    log.error("Error: BigQuery was unable to load into the table due to an error: {}", job.getStatus().getError().getMessage());
-                }
-            } catch (BigQueryException | InterruptedException e) {
-                log.error("Row not added during load append ", e);
-                throw new AppException("Error: BigQuery was unable to load into the table", e);
+            job = job.waitFor();
+            if (job.isDone()) {
+                log.info("Table {} is successfully appended by AVRO file loaded from GCS", tableNamePartial);
+            } else {
+                log.error("Error: BigQuery was unable to load into the table due to an error: {}", job.getStatus().getError().getMessage());
             }
+        } catch (BigQueryException | InterruptedException e) {
+            log.error("Row not added during load append ", e);
+            throw new AppException("Error: BigQuery was unable to load into the table", e);
+        }
     }
 }

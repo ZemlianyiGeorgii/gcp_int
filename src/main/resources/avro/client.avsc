@@ -10,5 +10,13 @@
 {"name": "phone",
 "type": ["string","null"]},
 {"name": "address",
-"type": ["string","null"]}]
+"type": ["string","null"]
+},
+{"name": "accountList",
+"type": {
+"type": "array",
+"items": {
+"name": "account",
+"type": "string"}}}
+]
 }

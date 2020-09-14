@@ -46,5 +46,4 @@ public class FileService {
             log.error("Error: Can't close Avro data file stream correctly", e);
         }
     }
-
 }
