@@ -3,7 +3,7 @@ package app.entity;
 import java.util.Objects;
 
 public class GcpStorageFileLocation {
-    private static final String PROTOCOL = "gc://";
+    private static final String PROTOCOL = "gs://";
     private static final String DELIMITER = "/";
     private final String name;
     private final String bucket;

@@ -52,7 +52,7 @@ public class PubSubController {
         }
 
         try {
-            fileService.handleFile(fileLocationOptional.get());
+            fileService.saveAvroToBigQuery(fileLocationOptional.get());
         } catch (Exception e) {
             String msg = String.format("Error: Handling file: %s", e.getMessage());
             log.error(msg);
