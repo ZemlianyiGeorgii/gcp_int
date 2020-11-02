@@ -20,8 +20,8 @@ jobs:
           echo "- in ${{ github.event.inputs.home }}!"
 
       - uses: actions/checkout@v2
-          with:
-            fetch-depth: 0
+        with:
+          fetch-depth: 0
 
       - name: Setup python
         uses: actions/setup-python@v2
