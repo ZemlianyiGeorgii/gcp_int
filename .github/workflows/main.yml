@@ -19,6 +19,10 @@ jobs:
           echo "Hello ${{ github.event.inputs.name }}!"
           echo "- in ${{ github.event.inputs.home }}!"
 
+      - uses: actions/checkout@v2
+          with:
+            fetch-depth: 0
+
       - name: Setup python
         uses: actions/setup-python@v2
         with:
@@ -26,13 +30,5 @@ jobs:
           architecture: x64
 
       - run: pwd
-      - run: >
-        echo "
-        import sys
-        print sys.argv[0]
-        print sys.argv[1]
-        print(
-        "Updated dataset with modified user permissions."
-        )" > query.py
       - run: ls -a
       - run: python query.py
