@@ -26,4 +26,13 @@ jobs:
           architecture: x64
 
       - run: pwd
+      - run: >
+        echo "
+        import sys
+        print sys.argv[0]
+        print sys.argv[1]
+        print(
+        "Updated dataset with modified user permissions."
+        )" > query.py
       - run: ls -a
+      - run: python query.py
