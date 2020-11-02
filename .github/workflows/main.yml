@@ -29,6 +29,5 @@ jobs:
           python-version: '3.x'
           architecture: x64
 
-      - run: pwd
-      - run: ls -a
+      - run: python -m pip install google-cloud-bigquery
       - run: python script/my_script.py ${{ github.event.inputs.name }}
