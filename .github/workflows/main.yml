@@ -25,4 +25,4 @@ jobs:
           python-version: '3.x'
           architecture: x64
 
-      - run: python script/my_script.py ${{ github.event.inputs.name }}
+      - run: pwd
