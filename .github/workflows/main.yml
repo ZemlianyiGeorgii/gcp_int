@@ -31,4 +31,4 @@ jobs:
 
       - run: pwd
       - run: ls -a
-      - run: python /script/my_script.py
+      - run: python script/my_script.py
